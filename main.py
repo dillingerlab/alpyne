@@ -1,3 +1,4 @@
+import calendar
 import os
 from datetime import datetime
 from pprint import pprint
@@ -18,7 +19,7 @@ def main():
     timezone = data['timezone']
     for x in data['daily']:
         date = datetime.fromtimestamp(x['dt'])
-        pprint('date: ' + str(date) + timezone)
+        pprint('date: ' + str(date) + ' ' + timezone + ' which is a ' + calendar.day_name[date.weekday()])
         pprint('feels like: ' + str(x['feels_like']))
         pprint('temps: ' + str(x['temp']))
         pprint('rain: ' + str(x.get('rain')))
