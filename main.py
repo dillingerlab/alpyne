@@ -21,9 +21,7 @@ def main():
         date = datetime.fromtimestamp(x['dt'])
         pprint('date: ' + str(date) + ' ' + timezone + ' which is a ' + calendar.day_name[date.weekday()])
         pprint('feels like: ' + str(x['feels_like']))
-        pprint('temps: ' + str(x['temp']))
         pprint('rain: ' + str(x.get('rain')))
-        pprint('humidity: ' + str(x['humidity']))
 
 
 if __name__ == '__main__':
