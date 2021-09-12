@@ -20,8 +20,9 @@ def main():
     for x in data['daily']:
         date = datetime.fromtimestamp(x['dt'])
         pprint('date: ' + str(date) + ' ' + timezone + ' which is a ' + calendar.day_name[date.weekday()])
-        pprint('feels like: ' + str(x['feels_like']))
-        pprint('rain: ' + str(x.get('rain')))
+        pprint('daytime feels like: ' + str(x['feels_like']['day']))
+        pprint('nighttime feels like: ' + str(x['feels_like']['night']))
+        pprint('rain in mm: ' + str(x.get('rain')))
 
 
 if __name__ == '__main__':
