@@ -6,13 +6,11 @@ from pprint import pprint
 import requests
 
 
-def get_working_dataset():
+def get_working_dataset(latitude_longitude):
     api_key = os.environ['openweather_api_key']
-    # Winona Latitude: 44.07468410 Longitude: -91.67587140
-    lat_lon = '44.07468410&lon=-91.67587140'
     excluded_dataset = 'current,minutely,hourly,alerts'
     url = 'https://api.openweathermap.org'
-    uri = f'{url}/data/2.5/onecall?lat={lat_lon}&exclude={excluded_dataset}&units=imperial&appid={api_key}'
+    uri = f'{url}/data/2.5/onecall?lat={latitude_longitude}&exclude={excluded_dataset}&units=imperial&appid={api_key}'
     r = requests.get(uri)
     data = r.json()
     dataset = {}
@@ -29,7 +27,9 @@ def get_working_dataset():
 
 
 def main():
-    dataset = get_working_dataset()
+    # Winona Latitude: 44.07468410 Longitude: -91.67587140
+    lat_lon = '44.07468410&lon=-91.67587140'
+    dataset = get_working_dataset(lat_lon)
     print(dataset)
 
 
