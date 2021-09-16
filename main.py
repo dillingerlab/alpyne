@@ -21,7 +21,7 @@ def get_working_dataset(latitude_longitude):
         dataset[days]['timezone'] = data['timezone']
         dataset[days]['day_fl_temp'] = x['feels_like']['day']
         dataset[days]['night_fl_temp'] = x['feels_like']['night']
-        dataset[days]['rain_mm'] = x.get('rain')
+        dataset[days]['weather'] = x['weather'][0]['description']
         days += 1
     return dataset
 
