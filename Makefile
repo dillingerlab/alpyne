@@ -16,6 +16,11 @@ $(VENV)::$(CURDIR)/requirements.txt
 dev:
 	$(MAKE) $(VENV)
 
+lint:
+	$(MAKE) $(VENV)
+	flake8
+	black ${CURDIR}
+
 
 .PHONY: help
 help:
