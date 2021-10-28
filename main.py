@@ -1,4 +1,3 @@
-import calendar
 import os
 from datetime import datetime
 from pprint import pprint
