@@ -16,6 +16,25 @@ def get_working_dataset(latitude_longitude):
     dataset = {}
     days = 0
     for x in data['daily']:
+        #day_weights = [{'type': 'day',
+        #                'values': [2, [[-30, 40], [88, 100]], 1, [40-88]]},
+
+        night_weights = [2, [[-30, 20], [70, 100]], 1, [20-70]]
+
+        #print(type(night_weights))
+        #print(night_weights)
+        #print(x['feels_like']['night'])
+        #print(type(x['feels_like']['night']))
+
+        [print(item) for item in night_weights if x['feels_like']['night'] not in night_weights]
+
+        #for i, x['feels_like']['night'] in enumerate(night_weights):
+        #    print('night_weights(key?)' + i)
+
+        #for i in zip(x['feels_like']):
+        #    pprint[i]
+
+
         dataset[days] = {}
         dataset[days]['date'] = datetime.fromtimestamp(x['dt'])
         dataset[days]['timezone'] = data['timezone']
