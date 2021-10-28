@@ -18,8 +18,8 @@ dev:
 
 lint:
 	$(MAKE) $(VENV)
-	flake8
-	black ${CURDIR}
+	flake8 || exit
+	black ${CURDIR} || exit
 
 
 .PHONY: help
