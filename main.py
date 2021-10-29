@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from pprint import pprint
+from collections import namedtuple
 
 import requests
 
@@ -15,21 +16,24 @@ def get_working_dataset(latitude_longitude):
     dataset = {}
     days = 0
     for x in data["daily"]:
-        # day_weights = [{'type': 'day',
-        #                'values': [2, [[-30, 40], [88, 100]], 1, [40-88]]},
+        Weight = namedtuple('Weight',  ['description', 'x', 'y'])
 
-        night_weights = [2, [[-30, 20], [70, 100]], 1, [20 - 70]]
+        w = Weight('bad', 2, [10, 15])
+
+        print(w.description)
+        print(w.x)
+        print(w.y)
 
         # print(type(night_weights))
         # print(night_weights)
         # print(x['feels_like']['night'])
         # print(type(x['feels_like']['night']))
 
-        [
-            print(item)
-            for item in night_weights
-            if x["feels_like"]["night"] not in night_weights
-        ]
+        #[
+        #    print(item)
+        #    for item in night_weights
+        #    if x["feels_like"]["night"] not in night_weights
+        #]
 
         # for i, x['feels_like']['night'] in enumerate(night_weights):
         #    print('night_weights(key?)' + i)
