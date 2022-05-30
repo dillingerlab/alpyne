@@ -5,16 +5,14 @@ VENV=$(CURDIR)/.venv/bin/activate
 
 $(VENV)::$(CURDIR)/requirements.txt
 	python3 -m venv $(CURDIR)/.venv
-	chmod 700 $(CURDIR)/.venv/bin/activate
-	( \
-	   source $(CURDIR)/.venv/bin/activate; \
-	   pip install wheel; \
-	   pip install -r $(CURDIR)/requirements.txt; \
-	)
+	$(CURDIR)/.venv/bin/pip install --upgrade pip
+	$(CURDIR)/.venv/bin/pip install wheel
+	$(CURDIR)/.venv/bin/pip install -r $(CURDIR)/requirements.txt
 
 
 dev:
 	$(MAKE) $(VENV)
+
 
 lint:
 	$(MAKE) $(VENV)
