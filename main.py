@@ -4,6 +4,7 @@ from datetime import datetime
 from pprint import pprint
 
 import requests
+import yaml
 
 
 def get_working_dataset(latitude_longitude):
@@ -59,6 +60,10 @@ def get_working_dataset(latitude_longitude):
 
 def main():
     # Winona Latitude: 44.07468410 Longitude: -91.67587140
+    with open('cords.yml', 'r') as f:
+        doc = yaml.load(f, Loader=yaml.FullLoader)
+    print(doc)
+
     lat_lon = "44.07468410&lon=-91.67587140"
     dataset = get_working_dataset(lat_lon)
     pprint(dataset[0])
