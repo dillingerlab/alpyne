@@ -60,7 +60,7 @@ def get_working_dataset(latitude_longitude):
 
 def main():
     # Winona Latitude: 44.07468410 Longitude: -91.67587140
-    with open('cords.yml', 'r') as f:
+    with open("cords.yml", "r") as f:
         doc = yaml.load(f, Loader=yaml.FullLoader)
     print(doc)
 

@@ -16,8 +16,13 @@ dev:
 
 lint:
 	$(MAKE) $(VENV)
-	flake8 || exit
-	black ${CURDIR} || exit
+	$(CURDIR)/.venv/bin/flake8
+	$(CURDIR)/.venv/bin/bandit $(CURDIR)/main.py.
+	$(CURDIR)/.venv/bin/black --check .
+
+
+clean:
+	rm -rf $(CURDIR)/.venv
 
 
 .PHONY: help
