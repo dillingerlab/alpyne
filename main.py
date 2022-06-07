@@ -1,5 +1,4 @@
 import os
-from collections import namedtuple
 from datetime import datetime
 from pprint import pprint
 
@@ -7,51 +6,25 @@ import requests
 import yaml
 
 
-def get_working_dataset(latitude_longitude):
+def get_working_dataset(latitude, longitude):
     api_key = os.environ["openweather_api_key"]
     excluded_dataset = "current,minutely,hourly,alerts"
     url = "https://api.openweathermap.org"
-    uri = f"{url}/data/2.5/onecall?lat={latitude_longitude}&exclude={excluded_dataset}&units=imperial&appid={api_key}"
-    r = requests.get(uri)
+    uri = f"data/2.5/onecall?lat={latitude}&lon={longitude}&exclude={excluded_dataset}&units=imperial&appid={api_key}"
+    api_endpoint = f"{url}/{uri}"
+    r = requests.get(api_endpoint)
     data = r.json()
     dataset = {}
     days = 0
     for x in data["daily"]:
-        Weights = namedtuple(
-            "Weights", ["description", "rating", "low_range", "upper_range"]
-        )
-
-        night_bad = Weights("bad", 2, 0, 30)
-        # night_good = Weights('good', 1, [31, 69])
-
-        print(x["feels_like"]["night"])
-        if (
-            x["feels_like"]["night"] > night_bad.low_range
-            and x["feels_like"]["night"] < night_bad.upper_range
-        ):
-            print(night_bad.rating)
-
-        # print(type(night_weights))
-        # print(night_weights)
-        # print(x['feels_like']['night'])
-        # print(type(x['feels_like']['night']))
-
-        # [
-        #    print(item)
-        #    for item in night_weights
-        #    if x["feels_like"]["night"] not in night_weights
-        # ]
-
-        # for i, x['feels_like']['night'] in enumerate(night_weights):
-        #    print('night_weights(key?)' + i)
-
-        # for i in zip(x['feels_like']):
-        #    pprint[i]
-
+        # pprint(x)
         dataset[days] = {}
-        dataset[days]["date"] = datetime.fromtimestamp(x["dt"])
-        dataset[days]["timezone"] = data["timezone"]
+        dataset[days]["date"] = datetime.fromtimestamp(x["dt"]).strftime("%m/%d")
+        dataset[days]["day_of_the_week"] = datetime.fromtimestamp(x["dt"]).strftime(
+            "%A"
+        )
         dataset[days]["day_feels_like_temp"] = x["feels_like"]["day"]
+        dataset[days]["temp_max"] = x["temp"]["max"]
         dataset[days]["night_feels_like_temp"] = x["feels_like"]["night"]
         dataset[days]["weather"] = x["weather"][0]["description"]
         days += 1
@@ -67,13 +40,12 @@ def main():
         keys.append(x)
 
     for i in keys:
-        lat = doc[i]['lat']
-        long = doc[i]['lon']
-        lat_lon = f'{lat}&lon={long}0'
+        latitude = doc[i]["latitude"]
+        longitude = doc[i]["longitude"]
 
-        dataset = get_working_dataset(lat_lon)
-        print(f'Crag: {i}')
-        pprint(dataset[0])
+        dataset = get_working_dataset(latitude, longitude)
+        print(f"Crag: {i}")
+        pprint(dataset)
     # Call Twilio
 
 
