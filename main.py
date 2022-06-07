@@ -62,11 +62,18 @@ def main():
     # Winona Latitude: 44.07468410 Longitude: -91.67587140
     with open("cords.yml", "r") as f:
         doc = yaml.load(f, Loader=yaml.FullLoader)
-    print(doc)
+    keys = []
+    for x in doc:
+        keys.append(x)
 
-    lat_lon = "44.07468410&lon=-91.67587140"
-    dataset = get_working_dataset(lat_lon)
-    pprint(dataset[0])
+    for i in keys:
+        lat = doc[i]['lat']
+        long = doc[i]['lon']
+        lat_lon = f'{lat}&lon={long}0'
+
+        dataset = get_working_dataset(lat_lon)
+        print(f'Crag: {i}')
+        pprint(dataset[0])
     # Call Twilio
 
 
