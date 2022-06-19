@@ -1,3 +1,5 @@
+#!./.venv/bin/python3
+
 import os
 from datetime import datetime
 from pprint import pprint
@@ -60,6 +62,13 @@ def main():
         longitude = doc[i]["longitude"]
 
         dataset = get_working_dataset(latitude, longitude)
+        print(f'Dataset: {dataset}')
+
+    with open('rating_schema.yml', 'r') as f:
+        ratings = yaml.load(f, Loader=yaml.FullLoader)
+    pprint(ratings)
+    pprint(ratings['Day Time Feel Like'])
+
     print(f"Crag: {i}")
     #for day in dataset:
     #    pprint(dataset[day])
