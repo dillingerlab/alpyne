@@ -9,7 +9,7 @@ import yaml
 
 
 def calc_rating(category: str, temperature: float):
-    with open('rating_schema.yml', 'r') as f:
+    with open("rating_schema.yml", "r") as f:
         ratings = yaml.load(f, Loader=yaml.FullLoader)
     rating = 0
 
@@ -41,7 +41,9 @@ def get_working_dataset(latitude, longitude):
         dataset[days]["night_feels_like_temp"] = x["feels_like"]["night"]
         dataset[days]["weather"] = x["weather"][0]["description"]
 
-        dataset[days]["rating"] = calc_rating('Day Time Feel Like', dataset[days]["day_feels_like_temp"])
+        dataset[days]["rating"] = calc_rating(
+            "Day Time Feel Like", dataset[days]["day_feels_like_temp"]
+        )
 
         days += 1
     return dataset
@@ -61,7 +63,7 @@ def main():
 
         dataset = get_working_dataset(latitude, longitude)
     print(f"Crag: {i}")
-    print(f'Dataset: {dataset}')
+    pprint(f"Dataset: {dataset}")
 
     # Call Twilio
 
