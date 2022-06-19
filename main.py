@@ -8,16 +8,14 @@ import requests
 import yaml
 
 
-def calc_rating(temp_max, temp_low, day_feel_like, night_feel_like):
+def calc_rating(category: str, temperature: float):
+    with open('rating_schema.yml', 'r') as f:
+        ratings = yaml.load(f, Loader=yaml.FullLoader)
     rating = 0
-    high = {-1: list(range(-30, 40)),
-            -2: list(range(40, 60)),
-            3: list(range(60, 80)),
-            2: list(range(80, 90)),
-            1: list(range(90, 130))}
-    for ranger in high:
-        if temp_max in high[ranger]:
-            rating = ranger
+
+    for x in ratings[category].keys():
+        if temperature in list(range(ratings[category][x][0], ratings[category][x][1])):
+            rating = x
     return rating
 
 
@@ -43,7 +41,7 @@ def get_working_dataset(latitude, longitude):
         dataset[days]["night_feels_like_temp"] = x["feels_like"]["night"]
         dataset[days]["weather"] = x["weather"][0]["description"]
 
-        dataset[days]["rating"] = calc_rating(1, 2, 3, 4)
+        dataset[days]["rating"] = calc_rating('Day Time Feel Like', dataset[days]["day_feels_like_temp"])
 
         days += 1
     return dataset
@@ -62,17 +60,9 @@ def main():
         longitude = doc[i]["longitude"]
 
         dataset = get_working_dataset(latitude, longitude)
-        print(f'Dataset: {dataset}')
-
-    with open('rating_schema.yml', 'r') as f:
-        ratings = yaml.load(f, Loader=yaml.FullLoader)
-    pprint(ratings)
-    pprint(ratings['Day Time Feel Like'])
-
     print(f"Crag: {i}")
-    #for day in dataset:
-    #    pprint(dataset[day])
-    pprint(calc_rating(76.5, 2, 3, 4))
+    print(f'Dataset: {dataset}')
+
     # Call Twilio
 
 
