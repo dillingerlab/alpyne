@@ -13,9 +13,11 @@ def calc_rating(category: str, temperature: float):
         ratings = yaml.load(f, Loader=yaml.FullLoader)
     rating = 0
 
-    for x in ratings[category].keys():
-        if temperature in list(range(ratings[category][x][0], ratings[category][x][1])):
-            rating = x
+    for key in ratings[category].keys():
+        if int(temperature) in list(
+            range(ratings[category][key][0], ratings[category][key][1])
+        ):
+            rating = key
     return rating
 
 
@@ -63,7 +65,7 @@ def main():
 
         dataset = get_working_dataset(latitude, longitude)
     print(f"Crag: {i}")
-    pprint(f"Dataset: {dataset}")
+    pprint(f"Dataset: {dataset[0]}")
 
     # Call Twilio
 
