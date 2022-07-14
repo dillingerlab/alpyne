@@ -14,21 +14,19 @@ Day Time Feel Like:
   2:
     - 76
     - 100
-Night Time Feel Like:
-  -2: 'range'
-  -1: 'range'
-  0: 'range'
-  1: 'range'
-  2: 'range'
-max:
+high:
   -2:
-    - 'test'
-    - 'range'
-  -1: 'range'
-  0: 'range'
-  1: 'range'
-  2: 'range'
-weather:
-  0: 'range'
-  1: ['cloudy']
-  2: ['sunny']
+    - 76
+    - 100
+  -1:
+    - 76
+    - 100
+  0:
+    - 76
+    - 100
+  1:
+    - 76
+    - 100
+  2:
+    - 76
+    - 100

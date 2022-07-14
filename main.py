@@ -39,13 +39,15 @@ def get_working_dataset(latitude, longitude):
             "%A"
         )
         dataset[days]["day_feels_like_temp"] = x["feels_like"]["day"]
-        dataset[days]["temp_max"] = x["temp"]["max"]
-        dataset[days]["night_feels_like_temp"] = x["feels_like"]["night"]
-        dataset[days]["weather"] = x["weather"][0]["description"]
-
-        dataset[days]["rating"] = calc_rating(
+        dataset[days]["feel_like_rating"] = calc_rating(
             "Day Time Feel Like", dataset[days]["day_feels_like_temp"]
         )
+        dataset[days]["high"] = x["temp"]["max"]
+        dataset[days]["high_rating"] = calc_rating(
+            "high", dataset[days]["day_feels_like_temp"]
+        )
+        dataset[days]["night_feels_like_temp"] = x["feels_like"]["night"]
+        dataset[days]["weather"] = x["weather"][0]["description"]
 
         days += 1
     return dataset
