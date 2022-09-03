@@ -8,6 +8,14 @@ import requests
 import yaml
 
 
+
+def handler(event, context)
+    secretManagerClient(<region>)
+    GetSecretValueCommand(<secretid>)
+    response = clitn)
+    parse
+
+
 def calc_rating(category: str, temperature: float):
     with open("rating_schema.yml", "r") as f:
         ratings = yaml.load(f, Loader=yaml.FullLoader)
