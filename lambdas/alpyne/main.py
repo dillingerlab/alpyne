@@ -8,12 +8,12 @@ import requests
 import yaml
 
 
-
-def handler(event, context)
-    secretManagerClient(<region>)
-    GetSecretValueCommand(<secretid>)
-    response = clitn)
-    parse
+def handler(event, context):
+    pass
+    # secretManagerClient(<region>)
+    # GetSecretValueCommand(<secretid>)
+    # response = clitn)
+    # parse
 
 
 def calc_rating(category: str, temperature: float):
@@ -22,9 +22,7 @@ def calc_rating(category: str, temperature: float):
     rating = 0
 
     for key in ratings[category].keys():
-        if int(temperature) in list(
-            range(ratings[category][key][0], ratings[category][key][1])
-        ):
+        if int(temperature) in list(range(ratings[category][key][0], ratings[category][key][1])):
             rating = key
     return rating
 
@@ -43,17 +41,11 @@ def get_working_dataset(latitude, longitude):
         # pprint(x)
         dataset[days] = {}
         dataset[days]["date"] = datetime.fromtimestamp(x["dt"]).strftime("%m/%d")
-        dataset[days]["day_of_the_week"] = datetime.fromtimestamp(x["dt"]).strftime(
-            "%A"
-        )
+        dataset[days]["day_of_the_week"] = datetime.fromtimestamp(x["dt"]).strftime("%A")
         dataset[days]["day_feels_like_temp"] = x["feels_like"]["day"]
-        dataset[days]["feel_like_rating"] = calc_rating(
-            "Day Time Feel Like", dataset[days]["day_feels_like_temp"]
-        )
+        dataset[days]["feel_like_rating"] = calc_rating("Day Time Feel Like", dataset[days]["day_feels_like_temp"])
         dataset[days]["high"] = x["temp"]["max"]
-        dataset[days]["high_rating"] = calc_rating(
-            "high", dataset[days]["day_feels_like_temp"]
-        )
+        dataset[days]["high_rating"] = calc_rating("high", dataset[days]["day_feels_like_temp"])
         dataset[days]["night_feels_like_temp"] = x["feels_like"]["night"]
         dataset[days]["weather"] = x["weather"][0]["description"]
 
