@@ -8,7 +8,7 @@ from aws_cdk import aws_secretsmanager as secretsmanager
 from constructs import Construct
 
 
-class TestStack(Stack):
+class AlpyneStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -27,18 +27,19 @@ class TestStack(Stack):
             "alpyne",
             runtime=_lambda.Runtime.PYTHON_3_8,
             code=_lambda.Code.from_asset("lambdas/alpyne"),
-            handler="alpyne.main",
+            handler="main.handler",
             layers=[layer],
             environment={"KEY": "VALUE"},
         )
 
-        weather_api_secret = secretsmanager.Secret.from_secret_name_v2(self, "openweather", "api_secret")
+        weather_api_secret = secretsmanager.Secret.from_secret_name_v2(self, "openweather", "openweather")
 
         weather_api_secret.grant_read(function)
 
-        aws_events.Rule(
-            self,
-            "alpyne-cron-rule",
-            schedule=aws_events.Schedule.cron(minute="0", hour="06", week_day="0-6"),
-            targets=[aws_events_targets.LambdaFunction(function)],
-        )
+        # BROKEN
+        # aws_events.Rule(
+        #    self,
+        #    "alpyne-cron-rule",
+        #    schedule=aws_events.Schedule.cron(minute="0", hour="6", week_day="0-6"),
+        #    targets=[aws_events_targets.LambdaFunction(function)],
+        # )

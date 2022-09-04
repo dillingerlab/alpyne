@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-import aws_cdk as cdk
-from test_stack import TestStack
+from aws_cdk import App
+from alpyne_stack import AlpyneStack
 
-app = cdk.App()
-TestStack(
+app = App()
+AlpyneStack(
     app,
-    "TestStack",
+    "AlpyneStack",
     # If you don't specify 'env', this stack will be environment-agnostic.
     # Account/Region-dependent features and context lookups will not work,
     # but a single synthesized template can be deployed anywhere.

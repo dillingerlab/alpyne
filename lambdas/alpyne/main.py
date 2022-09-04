@@ -7,13 +7,10 @@ from pprint import pprint
 import requests
 import yaml
 
-
-def handler(event, context):
-    pass
-    # secretManagerClient(<region>)
-    # GetSecretValueCommand(<secretid>)
-    # response = clitn)
-    # parse
+import boto3
+import base64
+import json
+from botocore.exceptions import ClientError
 
 
 def calc_rating(category: str, temperature: float):
@@ -28,10 +25,13 @@ def calc_rating(category: str, temperature: float):
 
 
 def get_working_dataset(latitude, longitude):
-    api_key = os.environ["openweather_api_key"]
+    api_key = get_secret(secret_container='openweather',
+        region_name='us-east-1',
+        secret_key='api_secret')
+
     excluded_dataset = "current,minutely,hourly,alerts"
     url = "https://api.openweathermap.org"
-    uri = f"data/2.5/onecall?lat={latitude}&lon={longitude}&exclude={excluded_dataset}&units=imperial&appid={api_key}"
+    uri = f"data/2.5/onecall?lat={latitude}&lon={longitude}&exclude={excluded_dataset}&units=imperial&appid={api_key['api_secret']}"
     api_endpoint = f"{url}/{uri}"
     r = requests.get(api_endpoint)
     data = r.json()
@@ -53,6 +53,20 @@ def get_working_dataset(latitude, longitude):
     return dataset
 
 
+
+def get_secret(secret_container: str, region_name: str, secret_key: str) -> str:
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    get_secret_value_response = client.get_secret_value(
+        SecretId=secret_container
+    )
+    return json.loads(get_secret_value_response['SecretString'], strict=False)
+
+
 def main():
     # Winona Latitude: 44.07468410 Longitude: -91.67587140
     with open("cords.yml", "r") as f:
@@ -70,6 +84,14 @@ def main():
     pprint(f"Dataset: {dataset[0]}")
 
     # Call Twilio
+
+
+def handler(event, context):
+    main()
+    # secretManagerClient(<region>)
+    # GetSecretValueCommand(<secretid>)
+    # response = clitn)
+    # parse
 
 
 if __name__ == "__main__":
