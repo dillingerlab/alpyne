@@ -42,12 +42,14 @@ def get_working_dataset(latitude: float, longitude: float) -> dict:
 
     TODO: Function is do this and this and this, should be purposeful
     """
-    if os.environ["openweather_api_key"]:
-        logging.debug("using OS")
+    try:
         api_key = os.environ["openweather_api_key"]
-    else:
-        logging.debug("using secretsmanager")
+        logging.debug("Using OS Env Var")
+    except KeyError as e:
         api_key = get_secret(secret_container="openweather", region_name="us-east-1", secret_key="api_secret")
+        logging.debug("using secretsmanager")
+    except:
+        raise e
 
     excluded_dataset = "current,minutely,hourly,alerts"
     url = "https://api.openweathermap.org"
