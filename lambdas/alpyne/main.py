@@ -9,6 +9,8 @@ import requests
 import yaml
 from textwrap import dedent
 
+logging.basicConfig(level=logging.INFO)
+
 
 def calc_rating(category: str, temperature: float):
     with open("rating_schema.yml", "r") as f:
@@ -22,7 +24,9 @@ def calc_rating(category: str, temperature: float):
 
 
 def get_secret(secret_container: str, region_name: str, secret_key: str) -> str:
-
+    """
+    connect and access SecretsManager secret
+    """
     session = boto3.session.Session()
     client = session.client(service_name="secretsmanager", region_name=region_name)
 
@@ -39,10 +43,10 @@ def get_working_dataset(latitude: float, longitude: float) -> dict:
     TODO: Function is do this and this and this, should be purposeful
     """
     if os.environ["openweather_api_key"]:
-        logging.info('using OS')
+        logging.debug('using OS')
         api_key = os.environ["openweather_api_key"]
     else: 
-        logging.info('using secretsmanager')
+        logging.debug('using secretsmanager')
         api_key = get_secret(secret_container="openweather",
             region_name="us-east-1",
             secret_key="api_secret")
@@ -95,10 +99,13 @@ def get_weekend_status(data: dict) -> dict:
     return dataset
 
 
-def weekend_forecast():
+def weekend_forecast() -> list:
     """
-    refactor to a generator to send data?
+    Create sms messge with next 3 dyas of weather for known crags
     """
+
+    output = []
+
     with open("cords.yml", "r") as f:
         doc = yaml.load(f, Loader=yaml.FullLoader)
     
@@ -113,17 +120,19 @@ def weekend_forecast():
         raw_data = get_working_dataset(latitude, longitude)
         dataset = get_weekend_status(raw_data)
 
-    output = dedent(f"""
-        Crag: {i}
-        Day: {dataset[0]['day_of_the_week']}, {dataset[0]['weather']}, {dataset[0]['high']}
-        Day: {dataset[1]['day_of_the_week']}, {dataset[1]['weather']}, {dataset[1]['high']}
-        Day: {dataset[2]['day_of_the_week']}, {dataset[2]['weather']}, {dataset[2]['high']}
-        """)
+        location_string = dedent(f"""
+            Crag: {i}
+            Day: {dataset[0]['day_of_the_week']}, {dataset[0]['weather']}, {dataset[0]['high']}
+            Day: {dataset[1]['day_of_the_week']}, {dataset[1]['weather']}, {dataset[1]['high']}
+            Day: {dataset[2]['day_of_the_week']}, {dataset[2]['weather']}, {dataset[2]['high']}
+            """)
+        output.append(location_string)
     return output
 
 
 def handler(event, context):
-    weekend_forecast()
+    forecast = weekend_forecast()
+
     # secretManagerClient(<region>)
     # GetSecretValueCommand(<secretid>)
     # response = clitn)
@@ -131,4 +140,6 @@ def handler(event, context):
 
 
 if __name__ == "__main__":
-    print(weekend_forecast())
+    forecast = weekend_forecast()
+    for x in forecast:
+        print(x)

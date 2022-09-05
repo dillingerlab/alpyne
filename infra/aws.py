@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from aws_cdk import App
 from alpyne_stack import AlpyneStack
+from aws_cdk import App
 
 app = App()
 AlpyneStack(
