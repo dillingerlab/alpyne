@@ -2,7 +2,8 @@ import os
 import pathlib
 import subprocess
 
-from aws_cdk import Stack, aws_events, aws_events_targets  # Duration,; aws_sqs as sqs,
+# from aws_cdk import aws_events, aws_events_targets
+from aws_cdk import Stack
 from aws_cdk import aws_lambda as _lambda
 from aws_cdk import aws_secretsmanager as secretsmanager
 from constructs import Construct

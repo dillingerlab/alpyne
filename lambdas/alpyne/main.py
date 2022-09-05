@@ -1,13 +1,13 @@
 #!./.venv/bin/python3
 import json
+import logging
 import os
 from datetime import datetime
-import logging
-from pprint import pprint
+from textwrap import dedent
+
 import boto3
 import requests
 import yaml
-from textwrap import dedent
 
 logging.basicConfig(level=logging.INFO)
 
@@ -43,13 +43,11 @@ def get_working_dataset(latitude: float, longitude: float) -> dict:
     TODO: Function is do this and this and this, should be purposeful
     """
     if os.environ["openweather_api_key"]:
-        logging.debug('using OS')
+        logging.debug("using OS")
         api_key = os.environ["openweather_api_key"]
-    else: 
-        logging.debug('using secretsmanager')
-        api_key = get_secret(secret_container="openweather",
-            region_name="us-east-1",
-            secret_key="api_secret")
+    else:
+        logging.debug("using secretsmanager")
+        api_key = get_secret(secret_container="openweather", region_name="us-east-1", secret_key="api_secret")
 
     excluded_dataset = "current,minutely,hourly,alerts"
     url = "https://api.openweathermap.org"
@@ -108,7 +106,7 @@ def weekend_forecast() -> list:
 
     with open("cords.yml", "r") as f:
         doc = yaml.load(f, Loader=yaml.FullLoader)
-    
+
     keys = []
     for x in doc:
         keys.append(x)
@@ -120,18 +118,20 @@ def weekend_forecast() -> list:
         raw_data = get_working_dataset(latitude, longitude)
         dataset = get_weekend_status(raw_data)
 
-        location_string = dedent(f"""
+        location_string = dedent(
+            f"""
             Crag: {i}
             Day: {dataset[0]['day_of_the_week']}, {dataset[0]['weather']}, {dataset[0]['high']}
             Day: {dataset[1]['day_of_the_week']}, {dataset[1]['weather']}, {dataset[1]['high']}
             Day: {dataset[2]['day_of_the_week']}, {dataset[2]['weather']}, {dataset[2]['high']}
-            """)
+            """
+        )
         output.append(location_string)
     return output
 
 
 def handler(event, context):
-    forecast = weekend_forecast()
+    return weekend_forecast()
 
     # secretManagerClient(<region>)
     # GetSecretValueCommand(<secretid>)
