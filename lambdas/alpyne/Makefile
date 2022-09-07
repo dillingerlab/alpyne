@@ -17,9 +17,8 @@ dev:
 lint:
 	$(MAKE) $(VENV)
 	$(CURDIR)/.venv/bin/flake8
-	$(CURDIR)/.venv/bin/bandit -lll -r $(CURDIR)/infra
-	$(CURDIR)/.venv/bin/bandit -lll -r $(CURDIR)/lambdas
-	$(CURDIR)/.venv/bin/brunette --check .
+	$(CURDIR)/.venv/bin/bandit $(CURDIR)/main.py.
+	$(CURDIR)/.venv/bin/black --check .
 
 
 clean:
