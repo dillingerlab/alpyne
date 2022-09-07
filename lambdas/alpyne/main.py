@@ -4,23 +4,14 @@ import logging
 import os
 from datetime import datetime
 from textwrap import dedent
+from xmlrpc.client import boolean
 
 import boto3
 import requests
 import yaml
+from twilio.rest import Client
 
 logging.basicConfig(level=logging.INFO)
-
-
-def calc_rating(category: str, temperature: float):
-    with open("rating_schema.yml", "r") as f:
-        ratings = yaml.load(f, Loader=yaml.FullLoader)
-    rating = 0
-
-    for key in ratings[category].keys():
-        if int(temperature) in list(range(ratings[category][key][0], ratings[category][key][1])):
-            rating = key
-    return rating
 
 
 def get_secret(secret_container: str, region_name: str, secret_key: str) -> str:
@@ -45,11 +36,9 @@ def get_working_dataset(latitude: float, longitude: float) -> dict:
     try:
         api_key = os.environ["openweather_api_key"]
         logging.debug("Using OS Env Var")
-    except KeyError as e:
+    except KeyError:
         api_key = get_secret(secret_container="openweather", region_name="us-east-1", secret_key="api_secret")
-        logging.debug("using secretsmanager")
-    except:
-        raise e
+        logging.debug("Using secretsmanager")
 
     excluded_dataset = "current,minutely,hourly,alerts"
     url = "https://api.openweathermap.org"
@@ -59,52 +48,16 @@ def get_working_dataset(latitude: float, longitude: float) -> dict:
     return r.json()
 
 
-def update_weather_data(data: dict) -> dict:
+def get_weekend_status(crag: str, data: dict) -> dict:
     """
     Updates OpenWeather Dataset as needed
     """
-    dataset = {}
-    days = 0
-    for x in data["daily"]:
-        # pprint(x)
-        dataset[days] = {}
-        dataset[days]["date"] = datetime.fromtimestamp(x["dt"]).strftime("%m/%d")
-        dataset[days]["day_of_the_week"] = datetime.fromtimestamp(x["dt"]).strftime("%A")
-        dataset[days]["day_feels_like_temp"] = x["feels_like"]["day"]
-        dataset[days]["feel_like_rating"] = calc_rating("Day Time Feel Like", dataset[days]["day_feels_like_temp"])
-        dataset[days]["high"] = x["temp"]["max"]
-        dataset[days]["high_rating"] = calc_rating("high", dataset[days]["day_feels_like_temp"])
-        dataset[days]["night_feels_like_temp"] = x["feels_like"]["night"]
-        dataset[days]["weather"] = x["weather"][0]["description"]
-
-        days += 1
-    return dataset
 
 
-def get_weekend_status(data: dict) -> dict:
-    """
-    Updates OpenWeather Dataset as needed
-    """
-    dataset = {}
-    days = 0
-    for x in data["daily"]:
-        # pprint(x)
-        dataset[days] = {}
-        dataset[days]["date"] = datetime.fromtimestamp(x["dt"]).strftime("%m/%d")
-        dataset[days]["day_of_the_week"] = datetime.fromtimestamp(x["dt"]).strftime("%A")
-        dataset[days]["high"] = x["temp"]["max"]
-        dataset[days]["weather"] = x["weather"][0]["description"]
-
-        days += 1
-    return dataset
-
-
-def weekend_forecast() -> list:
+def get_forecast() -> list:
     """
     Create sms messge with next 3 dyas of weather for known crags
     """
-
-    output = []
 
     with open("cords.yml", "r") as f:
         doc = yaml.load(f, Loader=yaml.FullLoader)
@@ -113,35 +66,94 @@ def weekend_forecast() -> list:
     for x in doc:
         keys.append(x)
 
-    for i in keys:
-        latitude = doc[i]["latitude"]
-        longitude = doc[i]["longitude"]
+    dataset = {}
+
+    for crag in keys:
+        latitude = doc[crag]["latitude"]
+        longitude = doc[crag]["longitude"]
 
         raw_data = get_working_dataset(latitude, longitude)
-        dataset = get_weekend_status(raw_data)
+        dataset[crag] = {}
+        for x in raw_data["daily"]:
+            day_of_the_week = datetime.fromtimestamp(x["dt"]).strftime("%A")
+            dataset[crag][day_of_the_week] = {"weather": x["weather"][0]["description"], "high": x["temp"]["max"]}
+
+    return dataset
+
+
+def create_sms_message(dataset: dict) -> str:
+    location_string = ""
+    for crag, days in dataset.items():
+        gather = ""
+        for day, data_point in days.items():
+            weather = data_point["weather"]
+            high = data_point["high"]
+            temp_string = dedent(
+                f"""{day}
+{weather}:{high}
+            """
+            )
+            gather = gather + temp_string
 
         location_string = dedent(
             f"""
-            Crag: {i}
-            Day: {dataset[0]['day_of_the_week']}, {dataset[0]['weather']}, {dataset[0]['high']}
-            Day: {dataset[1]['day_of_the_week']}, {dataset[1]['weather']}, {dataset[1]['high']}
-            Day: {dataset[2]['day_of_the_week']}, {dataset[2]['weather']}, {dataset[2]['high']}
-            """
+{location_string}
+{crag}
+{gather}
+        """
         )
-        output.append(location_string)
-    return output
+    return location_string
+
+
+def send_sms_message(message: list) -> boolean:
+    try:
+        account_sid = os.environ["TWILIO_ACCOUNT_SID"]
+        logging.debug("Using OS Env Var")
+    except KeyError:
+        account_sid = get_secret(secret_container="twilio", region_name="us-east-1", secret_key="account_sid")
+        logging.debug("using secretsmanager")
+
+    try:
+        auth_token = os.environ["TWILIO_AUTH_TOKEN"]
+        logging.debug("Using OS Env Var")
+    except KeyError:
+        auth_token = get_secret(secret_container="twilio", region_name="us-east-1", secret_key="auth_token")
+        logging.debug("using secretsmanager")
+
+    try:
+        from_number = os.environ["TWILIO_FROM_NUMBER"]
+        logging.debug("Using OS Env Var")
+    except KeyError:
+        from_number = get_secret(secret_container="twilio", region_name="us-east-1", secret_key="from_number")
+        logging.debug("using secretsmanager")
+
+    try:
+        to_number = os.environ["TWILIO_TO_NUMBER"]
+        logging.debug("Using OS Env Var")
+    except KeyError:
+        to_number = get_secret(secret_container="twilio", region_name="us-east-1", secret_key="to_number")
+        logging.debug("using secretsmanager")
+
+    client = Client(account_sid, auth_token)
+
+    client.api.account.messages.create(to=to_number, from_=from_number, body=str(message))
+
+    return True
 
 
 def handler(event, context):
-    return weekend_forecast()
+    dataset = get_forecast()
+    message = create_sms_message(dataset)
+    logging.debug(message)
 
-    # secretManagerClient(<region>)
-    # GetSecretValueCommand(<secretid>)
-    # response = clitn)
-    # parse
+    status = send_sms_message(message)
+
+    return status
 
 
 if __name__ == "__main__":
-    forecast = weekend_forecast()
-    for x in forecast:
-        print(x)
+    forecast_dataset = get_forecast()
+    logging.debug(forecast_dataset)
+    sms_message = create_sms_message(forecast_dataset)
+    logging.debug(sms_message)
+    status = send_sms_message(sms_message)

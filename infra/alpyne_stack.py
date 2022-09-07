@@ -2,8 +2,7 @@ import os
 import pathlib
 import subprocess
 
-# from aws_cdk import aws_events, aws_events_targets
-from aws_cdk import Stack
+from aws_cdk import Duration, Stack, aws_events, aws_events_targets
 from aws_cdk import aws_lambda as _lambda
 from aws_cdk import aws_secretsmanager as secretsmanager
 from constructs import Construct
@@ -31,16 +30,17 @@ class AlpyneStack(Stack):
             handler="main.handler",
             layers=[layer],
             environment={"KEY": "VALUE"},
+            timeout=Duration.minutes(1),
         )
 
-        weather_api_secret = secretsmanager.Secret.from_secret_name_v2(self, "openweather", "openweather")
-
+        weather_api_secret = secretsmanager.Secret.from_secret_name_v2(self, "twilio", "twilio")
+        twilio_secrets = secretsmanager.Secret.from_secret_name_v2(self, "openweather", "openweather")
         weather_api_secret.grant_read(function)
+        twilio_secrets.grant_read(function)
 
-        # BROKEN
-        # aws_events.Rule(
-        #    self,
-        #    "alpyne-cron-rule",
-        #    schedule=aws_events.Schedule.cron(minute="0", hour="6", week_day="0-6"),
-        #    targets=[aws_events_targets.LambdaFunction(function)],
-        # )
+        aws_events.Rule(
+            self,
+            "alpyne-cron-rule",
+            schedule=aws_events.Schedule.cron(minute="20", hour="13", week_day="1-4"),
+            targets=[aws_events_targets.LambdaFunction(function)],
+        )
