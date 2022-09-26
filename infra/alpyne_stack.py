@@ -41,6 +41,6 @@ class AlpyneStack(Stack):
         aws_events.Rule(
             self,
             "alpyne-cron-rule",
-            schedule=aws_events.Schedule.cron(minute="20", hour="13", week_day="1-4"),
+            schedule=aws_events.Schedule.cron(minute="20", hour="13", week_day="2,4"),
             targets=[aws_events_targets.LambdaFunction(function)],
         )
