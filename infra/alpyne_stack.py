@@ -38,9 +38,9 @@ class AlpyneStack(Stack):
         weather_api_secret.grant_read(function)
         twilio_secrets.grant_read(function)
 
-        aws_events.Rule(
-            self,
-            "alpyne-cron-rule",
-            schedule=aws_events.Schedule.cron(minute="20", hour="13", week_day="2,4"),
-            targets=[aws_events_targets.LambdaFunction(function)],
-        )
+        #aws_events.Rule(
+        #    self,
+        #    "alpyne-cron-rule",
+        #    schedule=aws_events.Schedule.cron(minute="20", hour="13", week_day="2,4"),
+        #    targets=[aws_events_targets.LambdaFunction(function)],
+        #)
