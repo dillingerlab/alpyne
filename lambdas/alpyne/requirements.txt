@@ -1,4 +1,4 @@
-requests==2.26.0
+requests==2.31.0
 pyyaml==6.0
 boto3==1.24.66
 twilio==7.13.0
